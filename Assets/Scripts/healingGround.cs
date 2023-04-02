@@ -14,6 +14,8 @@ public class healingGround : MonoBehaviour{
         
     }
     private void OnCollisionEnter2D(Collision2D collision){
-    	logic.heal(1);
+        if(collision.gameObject.name == "player"){
+    	    logic.heal(1);
+        }
     }
 }

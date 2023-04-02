@@ -14,6 +14,8 @@ public class killGround : MonoBehaviour{
         
     }
     private void OnCollisionEnter2D(Collision2D collision){
-    	logic.GameOver();
+        if(collision.gameObject.name == "player"){
+    	    logic.GameOver();
+        }
     }
 }
