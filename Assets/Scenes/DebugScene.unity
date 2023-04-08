@@ -1578,6 +1578,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1251671197}
     - target: {fileID: 8084950085583477101, guid: 1788be786aa0e4af3b4e23eebce20fd0, type: 3}
+      propertyPath: extraHeight
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8084950085583477101, guid: 1788be786aa0e4af3b4e23eebce20fd0, type: 3}
       propertyPath: jumpableGround.m_Bits
       value: 64
       objectReference: {fileID: 0}

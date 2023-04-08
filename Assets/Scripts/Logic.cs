@@ -14,7 +14,8 @@ public class Logic : MonoBehaviour{
     public bool bow;
     public bool hammer;
     [SerializeField] healthSystem hs;
-
+    public bool plan = false;
+    
     void Start() {
         hp = maxHP;
         hs.DrawHearts(hp, maxHP);
