@@ -4,12 +4,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class switchScene : MonoBehaviour{
-    public void startScene(string name){
-        Debug.Log(name);
-        SceneManager.LoadScene(name);
+    public void startScene(int id){
+        SceneManager.LoadScene(id);
     }
     public void debug(){
-        startScene("DebugScene");
+        startScene(1);
     }
 
 }

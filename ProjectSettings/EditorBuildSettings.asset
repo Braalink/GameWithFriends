@@ -14,4 +14,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DebugScene.unity
     guid: 075657fc787c1d7a0ad913862a62709e
+  - enabled: 1
+    path: Assets/Scenes/lightCastle.unity
+    guid: 495855547a02d6d998a5e8e3dee006c6
+  - enabled: 1
+    path: Assets/Scenes/lightForest.unity
+    guid: 22748d80e80e4bb5399afadc16043c66
+  - enabled: 1
+    path: Assets/Scenes/basement.unity
+    guid: f8862aa9288566ae4be80c0c518aa082
   m_configObjects: {}

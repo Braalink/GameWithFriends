@@ -7,7 +7,8 @@ using UnityEngine.InputSystem;
 public enum weapon{
     none,
     bow,
-    hammer
+    hammer,
+    sword
 }
 public class player : MonoBehaviour{
     public Rigidbody2D rigidBody;
@@ -35,6 +36,15 @@ public class player : MonoBehaviour{
     private bool shooting = false;
     public float arrowCooldown;
     private float arrowCool;
+    public CapsuleCollider2D coll;
+    [SerializeField] private LayerMask jumpableGround;
+    public float extraHeight;
+    private bool canLeft = true;
+    private bool canRight = true;
+    public float extraLeft;
+    public float extraRight;
+    [SerializeField] private LayerMask wall;
+
     private void Awake(){
         Controls = new PlayerControls(); 
     }
@@ -55,6 +65,8 @@ public class player : MonoBehaviour{
         Controls.player.dash.Enable();
         Controls.player.bow.performed += Bow;
         Controls.player.bow.Enable();
+        Controls.player.momentum.performed += Momentum;
+        Controls.player.momentum.Enable();
     }
 
 
@@ -70,6 +82,9 @@ public class player : MonoBehaviour{
     }
     private void DashChange(InputAction.CallbackContext obj){
         dashHeld = ! dashHeld;
+    }
+    private void Momentum(InputAction.CallbackContext obj){
+        rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
     }
     private void Bow(InputAction.CallbackContext obj){
         if (currentWeapon != weapon.bow && logic.bow){
@@ -90,15 +105,19 @@ public class player : MonoBehaviour{
         }
     }
     private void Right(){
-        if(logic.alive && logic.active){
-            rigidBody.velocity = new Vector2(speed,rigidBody.velocity.y);
-            	renderer.flipX=false;
+        if(logic.alive && logic.active && canRight){
+            rigidBody.velocity = new Vector2(rigidBody.velocity.x + speed/3,rigidBody.velocity.y);
+            if (rigidBody.velocity.x > speed){
+                rigidBody.velocity = new Vector2(speed, rigidBody.velocity.y);
+            }
         }
     }
     private void Left(){
-        if(logic.alive && logic.active){
-            rigidBody.velocity = new Vector2(-speed,rigidBody.velocity.y);
-            	renderer.flipX=true;
+        if(logic.alive && logic.active && canLeft){
+            rigidBody.velocity = new Vector2(rigidBody.velocity.x - speed/3,rigidBody.velocity.y);
+            if (rigidBody.velocity.x < speed){
+                rigidBody.velocity = new Vector2(-speed, rigidBody.velocity.y);
+            }
         }
     }
     private void OnDisable() {
@@ -107,6 +126,8 @@ public class player : MonoBehaviour{
         Controls.player.left.Disable();
         Controls.player.attack.Disable();
         Controls.player.dash.Disable();
+        Controls.player.bow.Disable();
+        Controls.player.momentum.Disable();
     }
     // Start is called before the first frame update
     void Start(){
@@ -123,26 +144,35 @@ public class player : MonoBehaviour{
             arrowCooldown -= (Time.time - time);
             if (arrowCooldown <= 0){
                 var newArrow = Instantiate(arrow, transform.position, transform.rotation);
-                var arrowScript = newArrow.GetComponentInChildren<arrow>();
-                if (renderer.flipX){
-                    arrowScript.facing = orientation.left; 
-                }else{
-                    arrowScript.facing = orientation.right;
-                }
                 arrowCooldown = arrowCool;
                 shooting = false;
             }
         }
+        
+        Grounded();
+        CanLeft();
+        CanRight();
         time = Time.time;
         if (jumpHeld){
             Jump();
-        }if (rightHeld){
+        }if (rightHeld && canRight){
             Right();
-        }if(leftHeld){
+        }if(leftHeld && canLeft){
             Left();
         }if(dashHeld && dashCooldownSec <= 0){
             Dash();
+        }if (rigidBody.velocity.x >=0.01){
+            if (transform.rotation.y!=0){
+                transform.rotation = Quaternion.Euler(0,0,0);
+            }
+            
+        }else if(rigidBody.velocity.x <=-0.01){
+            if (transform.rotation.y!=180){
+                transform.rotation = Quaternion.Euler(0,180,0);
+            }
+            
         }
+        
     }
     void Dash(){
     	if(logic.alive && logic.active && dash){
@@ -150,15 +180,10 @@ public class player : MonoBehaviour{
             Vector3 mousePos = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             if (mousePos.x < transform.position.x){
                     rigidBody.velocity = new Vector2(-dashSpeed,rigidBody.velocity.y);
-                    renderer.flipX=true;
                 }else{
                     rigidBody.velocity = new Vector2(dashSpeed,rigidBody.velocity.y);
-                    renderer.flipX=false;
                 }
         }
-    }
-    private void OnCollisionEnter2D(Collision2D collision){
-    	jumps=0;
     }
     private void Attack(InputAction.CallbackContext obj){
         if(logic.alive && logic.active){
@@ -170,5 +195,38 @@ public class player : MonoBehaviour{
                     break;
             }
         }
+    }
+    private void Grounded(){
+        RaycastHit2D raycastHit = Physics2D.Raycast(coll.bounds.center, Vector2.down, coll.bounds.extents.y + extraHeight, jumpableGround);
+        Color rayColor;
+        if (raycastHit.collider != null && raycastHit.collider != coll) rayColor = Color.green;
+        else rayColor = Color.red;
+        Debug.DrawRay(coll.bounds.center, Vector2.down * (coll.bounds.extents.y + extraHeight), rayColor);
+        if (raycastHit.collider != null && raycastHit.collider != coll){
+            jumps = 0;
+            //Debug.Log(raycastHit.collider);
+        }
+    }
+    private void CanLeft(){
+        RaycastHit2D raycastHit = Physics2D.Raycast(coll.bounds.center, Vector2.left, coll.bounds.extents.y + extraLeft, wall);
+        Color rayColor;
+        if (raycastHit.collider != null && raycastHit.collider != coll) rayColor = Color.green;
+        else rayColor = Color.red;
+        Debug.DrawRay(coll.bounds.center, Vector2.left * (coll.bounds.extents.y + extraLeft), rayColor);
+        if (raycastHit.collider != null && raycastHit.collider != coll){
+            canLeft = false;
+            //Debug.Log(raycastHit.collider);
+        }else canLeft = true;
+    }
+    private void CanRight(){
+        RaycastHit2D raycastHit = Physics2D.Raycast(coll.bounds.center, Vector2.right, coll.bounds.extents.y + extraRight, wall);
+        Color rayColor;
+        if (raycastHit.collider != null && raycastHit.collider != coll) rayColor = Color.green;
+        else rayColor = Color.red;
+        Debug.DrawRay(coll.bounds.center, Vector2.right * (coll.bounds.extents.y + extraRight), rayColor);
+        if (raycastHit.collider != null && raycastHit.collider != coll){
+            canRight = false;
+            //Debug.Log(raycastHit.collider);
+        }else canRight = true;
     }
 }

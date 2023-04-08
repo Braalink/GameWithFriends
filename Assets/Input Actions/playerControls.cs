@@ -89,6 +89,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""momentum"",
+                    ""type"": ""Button"",
+                    ""id"": ""c14b0c5e-02ee-43b8-aa6b-2df9b8d3b3dc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -212,6 +221,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""hammer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b257aff0-0195-413f-a88a-5c00ec163325"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""momentum"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""70f62b45-fd67-4d34-a514-6a51fbc07c18"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""momentum"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -227,6 +258,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_player_dash = m_player.FindAction("dash", throwIfNotFound: true);
         m_player_bow = m_player.FindAction("bow", throwIfNotFound: true);
         m_player_hammer = m_player.FindAction("hammer", throwIfNotFound: true);
+        m_player_momentum = m_player.FindAction("momentum", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -295,6 +327,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_player_dash;
     private readonly InputAction m_player_bow;
     private readonly InputAction m_player_hammer;
+    private readonly InputAction m_player_momentum;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -306,6 +339,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @dash => m_Wrapper.m_player_dash;
         public InputAction @bow => m_Wrapper.m_player_bow;
         public InputAction @hammer => m_Wrapper.m_player_hammer;
+        public InputAction @momentum => m_Wrapper.m_player_momentum;
         public InputActionMap Get() { return m_Wrapper.m_player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -336,6 +370,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @hammer.started += instance.OnHammer;
             @hammer.performed += instance.OnHammer;
             @hammer.canceled += instance.OnHammer;
+            @momentum.started += instance.OnMomentum;
+            @momentum.performed += instance.OnMomentum;
+            @momentum.canceled += instance.OnMomentum;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -361,6 +398,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @hammer.started -= instance.OnHammer;
             @hammer.performed -= instance.OnHammer;
             @hammer.canceled -= instance.OnHammer;
+            @momentum.started -= instance.OnMomentum;
+            @momentum.performed -= instance.OnMomentum;
+            @momentum.canceled -= instance.OnMomentum;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -387,5 +427,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnBow(InputAction.CallbackContext context);
         void OnHammer(InputAction.CallbackContext context);
+        void OnMomentum(InputAction.CallbackContext context);
     }
 }
